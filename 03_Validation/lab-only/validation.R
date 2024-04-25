@@ -1,3 +1,7 @@
+### CFA VALIDATION OF CONSTRUCTS
+## v1_16.04.2024
+
+
 setwd("C:/Users/franc/Desktop/DataAnalysis/03_Validation")
 rm(list=ls())
 
@@ -8,6 +12,9 @@ library(psych)
 
 # Load data
 data <- read.csv("data_merged_all_validation.csv")
+
+
+## Preliminary tests
 
 # Exclude non-numeric columns
 numeric_data <- data[sapply(data, is.numeric)]
@@ -23,6 +30,9 @@ print(kmo_results)
 bartlett_results <- cortest.bartlett(cor_matrix)
 print(bartlett_results)
 
+
+## CFA
+
 # Confirmatory Factor Analysis Model Specification
 cfa_model <- '
 NEO_N =~ NEON1 + NEON2R + NEON3 + NEON4
@@ -35,9 +45,10 @@ cfa_fit <- cfa(model = cfa_model, data = data, std.lv=TRUE, estimator = "MLR")
 summary(cfa_fit, fit.measures = TRUE, standardized = TRUE)
 
 
+## Calculate Metrics
+
 # Cronbach's Alpha for each construct
 psych::alpha(cbind(data$NEON1, data$NEON2R, data$NEON3, data$NEON4), check.keys=TRUE)
-
 
 # Composite Reliabilities
 compRelSEM(cfa_fit_boot)
