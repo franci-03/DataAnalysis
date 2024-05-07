@@ -109,9 +109,19 @@ leveneTest(data$SDT1COM, data$SDT2COM, data = data) # -> Insignificant (no Welch
 t_test_AUT <- t.test(data$SDT2AUT, data$SDT1AUT, paired = TRUE, alternative = "two.sided")
 print(t_test_AUT) 
 
+# Calculate Cohen’s d for t-tests to measure the effect size for AUT 
+d_AUT <- mean(data$SDT2AUT - data$SDT1AUT) / sd(data$SDT2AUT - data$SDT1AUT)
+effect_size_AUT <- list(cohens_d = d_AUT)
+print(effect_size_AUT)
+
 # Paired Sample T-test for the COM
 t_test_COM <- t.test(data$SDT2COM, data$SDT1COM, paired = TRUE, alternative = "two.sided")
 print(t_test_COM) 
+
+# Calculate Cohen’s d for t-tests to measure the effect size for COM 
+d_COM <- mean(data$SDT2COM - data$SDT1COM) / sd(data$SDT2COM - data$SDT1COM)
+effect_size_COM <- list(cohens_d = d_COM)
+print(effect_size_COM)
 
 # Wilcoxon signed-rank test for AUT
 w_test_AUT <- wilcox.test(data$SDT2AUT, data$SDT1AUT, paired = TRUE, alternative = "two.sided")
@@ -133,6 +143,9 @@ pairs(data[, c("NEOE", "NEOA", "NEOC", "NEON", "NEOO", "JC2IStR", "JC2HRJD")], u
 
 # Model with Double Mean Centering (Handling multicollinearity appropriately) -> YT-Video
 
+# Transform AGE to address non-linear relationship
+data$AGEsq <- data$AGE^2
+
 # Test model fit without interaction first
 model_no_int <- '
   # Measurement Model Definitions
@@ -143,11 +156,10 @@ model_no_int <- '
   JobCraftingExp ~ JobCraftingControl + Prompt_Support + NEOE + NEOA + NEOC + NEON + NEOO
 
   # Control Variables
-  JobCraftingExp ~ AGE + WORK + Gender_Männlich + 
+  JobCraftingExp ~ AGE + AGEsq + WORK + Gender_Männlich + 
                    Edu_Abgeschlossene_Berufsausbildung + Edu_Mittlere_Reife_Realschulabschluss + 
                    Edu_Abitur_oder_Fachabitur + Edu_Bachelor + Edu_Master + 
-                   AILiteracyUse + AILiteracyKno + AILiteracyDet + AILiteracyEth + 
-                   PGAT + NGAT
+                   AILiteracyUse + AILiteracyKno + PGAT + NGAT
                    
 '
 
@@ -343,6 +355,9 @@ semPaths(pm_no_ctrl, what = "est", layout = "tree",
 
 # Model with Double Mean Centering
 
+# Transform AGE to address non-linear relationship
+data$AGEsq <- data$AGE^2
+
 # Test model fit without interaction first
 model_no_int <- '
   # Measurement Model Definitions
@@ -353,11 +368,10 @@ model_no_int <- '
   JobCraftingExp ~ JobCraftingControl + Prompt_Support + NEOE + NEOA + NEOC + NEON + NEOO
 
   # Control Variables
-  JobCraftingExp ~ AGE + WORK + Gender_Männlich + 
+  JobCraftingExp ~ AGE + AGEsq + WORK + Gender_Männlich + 
                    Edu_Abgeschlossene_Berufsausbildung + Edu_Mittlere_Reife_Realschulabschluss + 
                    Edu_Abitur_oder_Fachabitur + Edu_Bachelor + Edu_Master + 
-                   AILiteracyUse + AILiteracyKno + AILiteracyDet + AILiteracyEth + 
-                   PGAT + NGAT
+                   AILiteracyUse + AILiteracyKno + PGAT + NGAT
                    
 '
 
