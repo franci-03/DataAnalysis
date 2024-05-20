@@ -11,6 +11,7 @@ library(semTools)
 library(psych)
 library(nortest)
 
+
 # Load data
 data <- read.csv("data_merged_all_validation.csv")
 
@@ -65,7 +66,7 @@ print(kmo_results3)
 kmo_results4 <- KMO(jc_data)
 print(kmo_results4)
 
-#Average of those 4 as overall Sampling Adequacy = 0.7
+#Average of those 4 as overall Sampling Adequacy = 0.71
 
 # Perform Bartlett’s Test of Sphericity
 all_vars <- c("AILiteracyUse1", "AILiteracyUse2", "AILiteracyUse3", "AILiteracyUse4", "AILiteracyUse5", "AILiteracyUse6",
@@ -174,6 +175,31 @@ psych::alpha(data[, c("NEOO1", "NEOO2", "NEOO3", "NEOO4", "NEOO5R")], check.keys
 # Composite Reliabilities
 compRelSEM(cfa_fit3, omit.indicators = c("NEOE2", "NEOE4")) #negative loading -> Cronbach's Alpha better as it handles this
 
+# Calculate composite reliability accounting for negative loadings
+customCompRelSEM <- function(cfa_fit) {
+  # Get standardized solution
+  std_solution <- standardizedSolution(cfa_fit, type = "std.all")
+  
+  # Extract loadings and variances
+  loadings <- std_solution[std_solution$op == "=~", c("lhs", "rhs", "est.std")]
+  
+  # Reverse negative loadings
+  loadings$est.std <- abs(loadings$est.std)
+  
+  # Calculate composite reliability
+  cr_list <- list()
+  for (factor in unique(loadings$lhs)) {
+    lambda <- loadings$est.std[loadings$lhs == factor]
+    cr <- sum(lambda)^2 / (sum(lambda)^2 + sum(1 - lambda^2))
+    cr_list[[factor]] <- cr
+  }
+  
+  return(cr_list)
+}
+
+comp_reliability_custom <- customCompRelSEM(cfa_fit3)
+print(comp_reliability_custom)
+
 # Average Variance Extracted:
 AVE(cfa_fit3)
 
@@ -210,7 +236,7 @@ discriminantValidity(cfa_fit4, cutoff = 0.9, merge = FALSE, level = 0.95)
 # remove JC22HRJD6
 cfa_model_jc2 <- '
 JC2_IStR =~ JC22IStR1 + JC22IStR2 + JC22IStR3 + JC22IStR4 + JC22IStR5
-JC2_HRJD =~ JC22HRJD1 + JC22HRJD2 + JC22HRJD5 
+JC2_HRJD =~ JC22HRJD1 + JC22HRJD2 + JC22HRJD5
 '
 
 # Fit the CFA model and look at summary
@@ -230,5 +256,6 @@ AVE(cfa_fit5)
 
 # Discriminant Validity to calculate AVE and apply the Fornell-Larcker criterion
 discriminantValidity(cfa_fit5, cutoff = 0.9, merge = FALSE, level = 0.95)
+
 
 

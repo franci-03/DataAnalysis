@@ -19,6 +19,7 @@ library(semptools)
 library(ggplot2)
 library(WebPower)
 
+
 # Load data
 data <- read.csv('data_merged_all_analysis.csv')
 
@@ -69,7 +70,7 @@ print(effect_size_HRJD)
 
 # Wilcoxon signed-rank test for ISTR
 w_test_ISTR <- wilcox.test(data$JC2IStR, data$JC1IStR, paired = TRUE, alternative = "two.sided")
-print(w_test_ISTR) # -> Not significant but data is normal so paired t-test already enough
+print(w_test_ISTR) # 
 
 # Wilcoxon signed-rank test for HRJD
 w_test_HRJD <- wilcox.test(data$JC2HRJD, data$JC1HRJD, paired = TRUE, alternative = "two.sided")
@@ -88,6 +89,9 @@ print(t_test_prompt_HRJD)
 
 
 ## Hypo 2a and 2b
+
+# Summary statistics for relevant columns
+summary(data[, c("SDT1AUT", "SDT1COM", "SDT2AUT", "SDT2COM")])
 
 # Visual Analysis
 pairs(data[, c("SDT1AUT", "SDT1COM", "SDT2AUT", "SDT2COM", "JC1IStR", "JC2IStR")])
@@ -328,7 +332,7 @@ plotProbe(probeNEOO, c(-3,3))
 # SemPaths -> Difficult to make good graphs (probably use PPT)
 pm_no_ctrl <- semptools::drop_nodes(
                 object = semPlotModel(fit_inter),
-                nodes = c("AGE", "WORK", "Gender_Männlich", 
+                nodes = c("AGE", "AGEsq", "WORK", "Gender_Männlich", 
                           "Edu_Abgeschlossene_Berufsausbildung", "Edu_Mittlere_Reife_Realschulabschluss", 
                           "Edu_Abitur_oder_Fachabitur", "Edu_Bachelor", "Edu_Master", "AILiteracyUse", 
                           "AILiteracyKno", "AILiteracyDet", "AILiteracyEth", "PGAT", "NGAT",
@@ -391,7 +395,7 @@ head(data_dmc)
 
 # Transform AGE (and WORK) to address non-linear relationship
 data_dmc$AGEsq <- data_dmc$AGE^2
-data_dmc$WORKsq <- data_dmc$WORK^2
+#data_dmc$WORKsq <- data_dmc$WORK^2
 
 # Moderation model
 model_inter <- '
